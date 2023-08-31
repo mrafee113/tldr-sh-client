@@ -24,7 +24,6 @@ set -uf
 # ignore any errors.
 # silent set -o pipefail || true
 
-
 main() {
 	check_requirements
 
@@ -64,6 +63,9 @@ main() {
 				update_tldr_cache
 				exit 0
 				;;
+            -w|--webcache)
+                webcache=true
+                ;;
 			-v|--version)
 				version_info
 				exit 0
@@ -271,7 +273,7 @@ update_tldr_cache() {
 # values to set.
 preferred_platform() {
 	case $# in
-		0) echo "$preferred_platform_name" ;;
+		0) echo "${preferred_platform_name:-}" ;;
 		*) preferred_platform_name="$*" ;;
 	esac
 }
@@ -328,10 +330,26 @@ split() {
 	done
 }
 
+user_dir() {
+    local ufile="$HOME/.tldr.userpath"
+    if [ -f "$ufile" ] && [ -d "$(cat "$ufile")" ]; then
+        cat "$ufile"
+        return
+    fi
+    local udir="$HOME/.cache/tldr/user"
+    mkdir -p "$udir"
+    echo "$udir"
+}
+
 # page_path takes a (normalized) page name in $1, and localizes it for language
 # and platform. Platform pages are given preference over languages per the tldr
 # client spec. The path to the first page found in that order is returned.
 page_path() {
+    local udir="$(user_dir)"
+    if [ ! "${webcache:-}" = "true" ] && [ -f "$udir/$1.md" ]; then
+        echo "$udir/$1.md"
+        return
+    fi
 	for p in $(platform_order); do
 		for l in $(i18n_paths); do
 			if exists "$(page_cache)/$l/$p/$1.md"; then
