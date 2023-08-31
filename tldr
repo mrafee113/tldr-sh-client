@@ -499,11 +499,11 @@ list_pages() {
 	{
 		case $(preferred_platform) in
 			all)
-				find "$(page_cache)" -name '*.md'
+				find "$(page_cache)" -name '*.md' ; find "$(user_dir)" -name "*.md"
 				;;
 			*)
 				find "$(page_cache)" -name '*.md' \
-					-path '*/'"$(preferred_platform)"'/*'
+					-path '*/'"$(preferred_platform)"'/*' ; find "$(user_dir)" -name "*.md"
 				;;
 		esac
 	} \
@@ -522,6 +522,7 @@ Usage: $(basename "$0") [options] <command>
   -L, --language [code]  override language detection, set preferred language
   -p, --platform [name]  show page from specific platform
   -u, --update           update cached copies of tldr page files
+  -w, --webcache         force use the cache from web instead of user's custom markdowns
   -h, --help             this help overview
   -v, --version          show version information
   -n, --no-cache         display pages directly from GitHub (watch ratelimits)
@@ -531,6 +532,9 @@ Usage: $(basename "$0") [options] <command>
 
 The client caches a copy of the tldr pages under $(cache_dir)
 By default, cached copies will be refreshed after $(cache_days) days.
+If there's any markdown files in ~/.cache/tldr/user (or the path in ~/.tldr.userpath),
+those files take higher priority compared to the webcache markdown files; unless --webcache
+is provided.
 
 Examples:
 	Show an overivew of unzip:

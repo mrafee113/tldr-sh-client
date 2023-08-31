@@ -4,15 +4,19 @@ A fully-functional POSIX shell client for [tldr-pages](https://github.com/tldr-p
 This version aims to be the easiest, smallest, and most universal client to set up
 on a new account, without sacrificing any features. It uses only `/bin/sh` features
 and `curl`, and tested on Linux, OSX, FreeBSD, with `bash`, `sh`, `dash`, `ksh`,
-`zsh`, `csh`.
+`zsh`, `csh`.  
 
 ![tldr screenshot](Screenshot.png?raw=true)
 
+## Fork Features
+- The ability to create custom markdown files that override the files from web/cache.  
+  The custom files have to be located either in `~/.cache/tldr/user` or in the directory path designated in file `~/.tldr.userpath`. The latter takes higher priority.  
+  In the case that you want to explicitly acces the md file from web, provide `-w` or `--webcache` along with `[command]`.  
+
 ## Installation
 ```bash
-mkdir -p ~/bin
-curl -o ~/bin/tldr https://raw.githubusercontent.com/raylee/tldr/master/tldr
-chmod +x ~/bin/tldr
+curl -o ~/.local/bin/tldr https://raw.githubusercontent.com/mrafee113/tldr-sh-client/main/tldr
+chmod +x ~/.local/bin/tldr
 ```
 
 Then try using the command! If you get an error such as _-bash: tldr: command not found_,
@@ -23,8 +27,7 @@ export PATH=$PATH:~/bin
 ```
 
 If you'd like to enable shell completion (eg. `tldr w<tab><tab>` to get a
-list of all commands which start with w) then add the following to the same
-startup script:
+list of all commands which start with w) then add the following to the startup script `~/.bash_profile`:
 
 ```bash
 complete -W "$(tldr 2>/dev/null --list)" tldr
@@ -32,7 +35,7 @@ complete -W "$(tldr 2>/dev/null --list)" tldr
 
 Or for `~/.zshrc`, add:
 ```bash
-[ -f ~/bin/tldr ] && compctl -k "($( tldr 2>/dev/null --list))" tldr
+[ -f /usr/bin/tldr ] && compctl -k "($( tldr 2>/dev/null --list))" tldr
 ```
 
 ## Prerequisites
@@ -58,6 +61,9 @@ tldr [options] <command>
 
 The client caches a copy of the tldr pages under $(cache_dir)
 By default, cached copies will be refreshed after $(cache_days) days.
+If there's any markdown files in ~/.cache/tldr/user (or the path in ~/.tldr.userpath),
+those files take higher priority compared to the webcache markdown files; unless --webcache
+is provided.
 
 Examples:
 	Show an overivew of unzip:
